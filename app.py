@@ -47,7 +47,8 @@ def register():
 
         register = {
             "username": request.form.get("username").lower(),
-            "password": request.form.get("password)")}
+            "password": generate_password_hash(request.form.get("password"))
+            }
         mongo.db.users.insert_one(register)
         # put the new user into 'session' cookie
         session["user"] = request.form.get("username").lower()
@@ -106,7 +107,7 @@ def logout():
     return redirect(url_for("login"))
 
 
-@app.route("/add_work", method=["GET", "POST"])
+@app.route("/add_work", methods=["GET", "POST"])
 def add_work():
     if request.method == "POST":
         work = {
