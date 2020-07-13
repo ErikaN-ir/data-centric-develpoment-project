@@ -106,6 +106,43 @@ def logout():
     return redirect(url_for("login"))
 
 
+@app.route("/add_work", method=["GET", "POST"])
+def add_work():
+    if request.method == "POST":
+        work = {
+            "author": session["user"],
+            "title": request.form.get("title"),
+            "genre": request.form.get("genre"),
+            "writing": request.form.get("writing")
+        }
+        mongo.db.works.insert_one(work)
+        flash("Work Successfully Published!")
+        return redirect(url_for("get_works"))
+
+
+@app.route("/delete/<work_id>")
+def delete_work(work_id):
+    mongo.db.works.remove({"_id": ObjectId(work_id)})
+    flash("Work Successfully Deleted")
+    return redirect(url_for("get_works"))
+
+
+@app.route("/edit_work/<work_id>", methods=["GET", "POST"])
+def edit_work(work_id):
+    if request.method == "POST":
+        submit = {
+            "author": session["user"],
+            "title": request.form.get("title"),
+            "genre": request.form.get("genre"),
+            "writing": request.form.get("writing")
+        }
+        mongo.db.works.update({"_id": ObjectId(work_id)}, submit)
+        flash("Work Successfully Updated")
+    work = mongo.db.works.find_one({"_id": ObjectId(work_id)})
+    genres = mongo.db.genres.find().sort("genre_name", 1)
+    return render_template("edit_work.html", work=work, genres=genres)
+
+
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),

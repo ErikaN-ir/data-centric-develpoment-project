@@ -32,10 +32,13 @@
             {{ work.genre }}<br>
             {{ work.writing }}<br>
             </p>
-            <a href="/"><i class="material-icons right">edit</i></a>
-            <a href="/"><i class="material-icons right">delete</i></a>
+            {% if session.user|lower == work.author %}
+                <a href="/"><i class="material-icons right">edit</i></a>
+                <a href="/"><i class="material-icons right">delete</i></a>
+            {% else %}
             <a href="/"><i class="material-icons right">favorite</i></a>
             <a href="/"><i class="material-icons right">favorite_border</i></a>
+            {% endif %}
         </div>
     {% endfor %}
 </div>

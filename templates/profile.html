@@ -8,6 +8,20 @@
                     {{ username }}'s Profile
                 </h3>
             </div>
+            {% for work in works %}
+                {% if session.user|lower == work.author %}
+                <div>
+                    <p>
+                    {{ work.title }}<br>
+                    {{ work.author }}<br>
+                    {{ work.genre }}<br>
+                    {{ work.writing }}<br>
+                    </p>
+                <a href="/"><i class="material-icons right">edit</i></a>
+                <a href="/"><i class="material-icons right">delete</i></a>
+            {% endif %}
+        </div>
+    {% endfor %}
         </div>
     </div>
 
