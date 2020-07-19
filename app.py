@@ -9,7 +9,6 @@ from flask import (
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
-import pymongo
 
 if os.path.exists("env.py"):
     import env
@@ -30,19 +29,38 @@ def is_logged_in():
 @app.route("/home")
 def get_works():
     works = mongo.db.works.find()
-    return render_template("works.html", works=works)
+    _genres = mongo.db.genres.find()
+    genre_list = [genre for genre in _genres]
+    return render_template("works.html", works=works, genres=genre_list)
 
 
 @app.route("/search", methods=["GET", "POST"])
-def search():
+def search1():
     query = request.form.get("query")
     try:
         works = list(mongo.db.works.find(
             {"writing": {"$regex": f'/{query}$/'}}))
     except Exception:
         flash("Couldn't find any works with that query.")
-        return redirect(url_for("home"))
-    return render_template("works.html", works=works)
+        return redirect(url_for("get_works"))
+    return render_template("search.html", works=works)
+
+
+@app.route("/search", methods=["GET", "POST"])
+def search():
+    query = request.form.get("query")
+    works = mongo.db.works.find({"author": query})
+    return render_template("work.html", works=works)
+
+
+@app.route("/filter", methods=["GET", "POST"])
+def filter():
+    genre = {
+        "genre": request.form.get("genre_name")
+        }
+    works = mongo.db.works
+    results = works.find(genre)
+    return render_template("works.html", works=results)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -105,7 +123,9 @@ def profile():
         # grab the user's username from db
         username = mongo.db.users.find_one(
             {"username": session["user"]})["username"]
-        return render_template("profile.html", username=username)
+        works = mongo.db.works.find()
+        return render_template(
+            "profile.html", username=username, works=works)
 
     # user isn't logged in
     return redirect(url_for("login"))
@@ -122,22 +142,29 @@ def logout():
     return redirect(url_for("login"))
 
 
-@app.route("/add_work", methods=["GET", "POST"])
+@app.route("/add_work")
 def add_work():
     if is_logged_in():
-        if request.method == "POST":
-            work = {
-                "author": session["user"],
-                "title": request.form.get("title"),
-                "genre": request.form.get("genre"),
-                "writing": request.form.get("writing")
-            }
-            mongo.db.works.insert_one(work)
-            flash("Work Successfully Published!", "success")
-            return redirect(url_for("get_works"))
-        genres = mongo.db.genres.find().sort("genre_name", pymongo.ASCENDING)
-        return render_template("create.html", genres=genres)
+        _genres = mongo.db.genres.find()
+        genre_list = [genre for genre in _genres]
+        username = mongo.db.users.find_one(
+            {"username": session["user"]})["username"]
+        return render_template(
+            'create.html', genres=genre_list, username=username)
     return redirect(url_for("login"))
+
+
+@app.route("/insert_work", methods=['POST'])
+def insert_work():
+    works = mongo.db.works
+    submit = {
+            "author": session["user"],
+            "title": request.form.get("title"),
+            "genre": request.form.get("genre_name"),
+            "writing": request.form.get("writing")
+        }
+    works.insert_one(submit)
+    return redirect(url_for('profile'))
 
 
 @app.route("/delete/<work_id>")
@@ -154,34 +181,41 @@ def delete_work(work_id):
     return redirect(url_for("login"))
 
 
-@app.route("/edit_work/<work_id>", methods=["GET", "POST"])
+@app.route("/edit_work/<work_id>")
 def edit_work(work_id):
+    if is_logged_in():
+        username = mongo.db.users.find_one(
+            {"username": session["user"]})["username"]
+        try:
+            the_work = mongo.db.works.find_one({"_id": ObjectId(work_id)})
+            all_genres = mongo.db.genres.find()
+        except bson.errors.InvalidId:
+            flash("Work not found!", "error")
+            return redirect(url_for("get_works"))
+        except Exception:
+            flash("An error occurred", "error")
+            return redirect(url_for("get_works"))
+        return render_template(
+            'edit_work.html', work=the_work,
+            genres=all_genres, username=username)
+
+    return redirect(url_for("login"))
+
+
+@app.route("/update_work/<work_id>", methods=["POST"])
+def update_work(work_id):
     # A decorator could've been used for this login check functionality
     if is_logged_in():
-        if request.method == "POST":
-            submit = {
-                "author": session["user"],
-                "title": request.form.get("title"),
-                "genre": request.form.get("genre"),
-                "writing": request.form.get("writing")
-            }
+        submit = {
+            "author": session["user"],
+            "title": request.form.get("title"),
+            "genre": request.form.get("genre"),
+            "writing": request.form.get("writing")
+        }
 
-            try:
-                mongo.db.works.update_one(
-                    {"_id": ObjectId(work_id)}, {'$set': submit})
-            except bson.errors.InvalidId:
-                flash("Work not found!", "error")
-                return redirect(url_for("get_works"))
-            except Exception:
-                flash("An error occurred", "error")
-                return redirect(url_for("get_works"))
-
-            flash("Work Successfully Updated", "success")
-            return redirect(url_for("get_works"))
-
-        # GET request
         try:
-            work = mongo.db.works.find_one({"_id": ObjectId(work_id)})
+            mongo.db.works.update_one(
+                {"_id": ObjectId(work_id)}, {'$set': submit})
         except bson.errors.InvalidId:
             flash("Work not found!", "error")
             return redirect(url_for("get_works"))
@@ -189,8 +223,9 @@ def edit_work(work_id):
             flash("An error occurred", "error")
             return redirect(url_for("get_works"))
 
-        genres = mongo.db.genres.find().sort("genre_name", pymongo.ASCENDING)
-        return render_template("edit_work.html", work=work, genres=genres)
+        flash("Work Successfully Updated", "success")
+        return redirect(url_for("profile"))
+
     return redirect(url_for("login"))
 
 

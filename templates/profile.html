@@ -8,21 +8,44 @@
                     {{ username }}'s Profile
                 </h3>
             </div>
-            {% for work in works %}
-                {% if session.user|lower == work.author %}
-                <div>
-                    <p>
-                    {{ work.title }}<br>
-                    {{ work.author }}<br>
-                    {{ work.genre }}<br>
-                    {{ work.writing }}<br>
-                    </p>
+        <div>
+    </div>
+
+    <div class="row card-panel grey lighten-5">
+        <form action="{{ url_for('filter') }}" method="POST" class="col s12">
+            <div class="row valign-wrapper center-align">
+                <div class="input-field col s12 m8">
+                    <select id="genre-filter" name="genre_name">
+                        <option value="" disabled selected>Choose Genre</option>
+                        {% for gen in genres %}
+                        <option value="{{gen.genre_name}}">{{gen.genre_name}}</option>
+                        {% endfor %}
+                    </select>
+                    <label>Genre</label>
+                </div>
+                <div class="col s12 m4">
+                    <a href="{{ url_for('get_works') }}" class="red btn text-shadow">Reset</a>
+                    <button type="submit" class="light-blue darken-1 btn text-shadow">
+                        <i class="fas fa-search left"></i> Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% for work in works %}
+        {% if session["user"]|lower == work.author|lower %}
+            <div>
+                <p>
+                {{ work.title }}<br>
+                {{ work.author }}<br>
+                {{ work.genre }}<br>
+                {{ work.writing }}<br>
+                </p>
                 <a href="{{ url_for('edit_work', work_id=work._id) }}"><i class="material-icons right">edit</i></a>
                 <a href="{{ url_for('delete_work', work_id=work._id) }}"><i class="material-icons right">delete</i></a>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
     {% endfor %}
-        </div>
-    </div>
 
 {% endblock %}
