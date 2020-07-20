@@ -53,14 +53,29 @@ def search():
     return render_template("work.html", works=works)
 
 
-@app.route("/filter", methods=["GET", "POST"])
-def filter():
+@app.route("/filter_works", methods=["GET", "POST"])
+def filter_works():
     genre = {
         "genre": request.form.get("genre_name")
         }
     works = mongo.db.works
     results = works.find(genre)
     return render_template("works.html", works=results)
+
+
+@app.route("/filter_profile", methods=["GET", "POST"])
+def filter_profile():
+    genre = {
+        "genre": request.form.get("genre_name")
+        }
+    works = mongo.db.works
+    results = works.find(genre)
+    username = mongo.db.users.find_one(
+            {"username": session["user"]})["username"]
+    _genres = mongo.db.genres.find()
+    genre_list = [genre for genre in _genres]
+    return render_template(
+        "profile.html", username=username, works=results, genres=genre_list)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -124,8 +139,10 @@ def profile():
         username = mongo.db.users.find_one(
             {"username": session["user"]})["username"]
         works = mongo.db.works.find()
+        _genres = mongo.db.genres.find()
+        genre_list = [genre for genre in _genres]
         return render_template(
-            "profile.html", username=username, works=works)
+            "profile.html", username=username, works=works, genres=genre_list)
 
     # user isn't logged in
     return redirect(url_for("login"))
