@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <div class="row">
+        <div class="col s12 m8 offset-m2">
+            <div class="card-panel">
+                <h3 class="center-align light-blue-text text-darken-4">
+                    {{ username }}'s Favourites
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="row card-panel grey lighten-5">
+        <form action="{{ url_for('filter_favourites') }}" method="POST" class="col s12">
+            <div class="row valign-wrapper center-align">
+                <div class="input-field col s12 m8">
+                    <select id="genre-filter" name="genre_name">
+                        <option value="" disabled selected>Choose Genre</option>
+                        {% for gen in genres %}
+                        <option value="{{gen.genre_name}}">{{gen.genre_name}}</option>
+                        {% endfor %}
+                    </select>
+                    <label>Genre</label>
+                </div>
+                <div class="col s12 m4">
+                    <a href="{{ url_for('my_favourites') }}" class="red btn text-shadow">Reset</a>
+                    <button type="submit" class="light-blue darken-1 btn text-shadow">
+                        <i class="fas fa-search left"></i> Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% for work in works %}
+        {% if session["user"]|lower == work.author|lower %}
+            <div>
+                <p>
+                <a href="{{ url_for('view_work', work_id=work._id) }}">{{ work.title }}</a><br>
+                {{ work.author }}<br>
+                {{ work.genre }}<br>
+                {{ work.writing }}<br>
+                </p>
+                <a href="{{ url_for('edit_work', work_id=work._id) }}"><i class="material-icons right">edit</i></a>
+                <a href="{{ url_for('delete_work', work_id=work._id) }}"><i class="material-icons right">delete</i></a>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}

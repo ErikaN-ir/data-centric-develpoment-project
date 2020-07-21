@@ -29,9 +29,11 @@ def is_logged_in():
 @app.route("/home")
 def get_works():
     works = mongo.db.works.find()
+    likes = mongo.db.likes.find()
     _genres = mongo.db.genres.find()
     genre_list = [genre for genre in _genres]
-    return render_template("works.html", works=works, genres=genre_list)
+    return render_template(
+        "works.html", works=works, likes=likes, genres=genre_list)
 
 
 @app.route("/search", methods=["GET", "POST"])
@@ -76,6 +78,23 @@ def filter_profile():
     genre_list = [genre for genre in _genres]
     return render_template(
         "profile.html", username=username, works=results, genres=genre_list)
+
+
+@app.route("/filter_favourites", methods=["GET", "POST"])
+def filter_favourites():
+    genre = {
+        "genre": request.form.get("genre_name")
+        }
+    works = mongo.db.works
+    results = works.find(genre)
+    username = mongo.db.users.find_one(
+            {"username": session["user"]})["username"]
+    _genres = mongo.db.genres.find()
+    genre_list = [genre for genre in _genres]
+    likes = mongo.db.likes.find()
+    return render_template(
+        "favourites.html", username=username,
+        works=results, genres=genre_list, likes=likes)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -143,6 +162,23 @@ def profile():
         genre_list = [genre for genre in _genres]
         return render_template(
             "profile.html", username=username, works=works, genres=genre_list)
+
+    # user isn't logged in
+    return redirect(url_for("login"))
+
+
+@app.route("/my_favourites", methods=["GET", "POST"])
+def my_favourites():
+    if is_logged_in():  # If user is logged in
+        # grab the user's username from db
+        username = mongo.db.users.find_one(
+            {"username": session["user"]})["username"]
+        works = mongo.db.works.find()
+        _genres = mongo.db.genres.find()
+        genre_list = [genre for genre in _genres]
+        return render_template(
+            "favourites.html", username=username,
+            works=works, genres=genre_list)
 
     # user isn't logged in
     return redirect(url_for("login"))
@@ -242,6 +278,43 @@ def update_work(work_id):
 
         flash("Work Successfully Updated", "success")
         return redirect(url_for("profile"))
+
+    return redirect(url_for("login"))
+
+
+@app.route("/view_work/<work_id>")
+def view_work(work_id):
+    # don't need login - edit/delete & like buttons only there if logged in
+    try:
+        the_work = mongo.db.works.find_one({"_id": ObjectId(work_id)})
+        likes = mongo.db.likes.find()
+    except bson.errors.InvalidId:
+        flash("Work not found!", "error")
+        return redirect(url_for("get_works"))
+    except Exception:
+        flash("An error occurred", "error")
+        return redirect(url_for("get_works"))
+    return render_template(
+        'view_work.html', work=the_work, likes=likes)
+
+
+@app.route("/favourite/<work_id>")
+def favourite(work_id):
+    if is_logged_in():
+        likes = mongo.db.likes
+        try:
+            submit = {
+                "user": session["user"],
+                "work_id": ObjectId(work_id)
+            }
+            likes.insert_one(submit)
+        except bson.errors.InvalidId:
+            flash("Work not found!", "error")
+            return redirect(url_for("get_works"))
+        except Exception:
+            flash("An error occurred", "error")
+            return redirect(url_for("get_works"))
+        return redirect(url_for('view_work', work_id=work_id))
 
     return redirect(url_for("login"))
 

@@ -1,39 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div>
-    <a href="{{ url_for('add_work') }}"><i class="material-icons right">add_circle</i></a>
-</div>
-
-<div>
-    {% for work in works %}
-        {% set writingloop = loop %}
+<h3>View</h3>
+<div class="row">
         <div>
-            <p>{{ work.title }}<br>
+            <p>
+            {{ work.title }}<br>
             {{ work.author }}<br>
             {{ work.genre }}<br>
-            <span id="writing-{{ writingloop.index }}">{{ work.writing }}</span><br>
+            <span id="writing-one">{{ work.writing }}</span><br>
             </p>
             <script>
             function formatWriting(){
-                let unformat = document.getElementById("writing-{{ writingloop.index }}").innerHTML;
+                let unformat = document.getElementById("writing-one").innerHTML;
                 console.log(unformat);
                 let trimmed = unformat.trim();
                 let formatted = trimmed.replace(/\n/g, "<br>");
-                return document.getElementById("writing-{{ writingloop.index }}").innerHTML = formatted;
+                return document.getElementById("writing-one").innerHTML = formatted;
             }
             formatWriting();
             </script>
             {% if session["user"]|lower == work.author|lower %}
                 <a href="{{ url_for('edit_work', work_id=work._id) }}"><i class="material-icons right">edit</i></a>
                 <a href="{{ url_for('delete_work', work_id=work._id) }}"><i class="material-icons right">delete</i></a>
-            <!--{% elif ( (session["user"]|lower == likes.user|lower) and (work._id == likes.work_id) ) %}
+            {% elif ( (session["user"]|lower == likes.user|lower) and (work._id == likes.work_id) ) %}
                 <a href="/"><i class="material-icons right">favorite</i></a>
             {% else %}
-                <a href="/"><i class="material-icons right">favorite_border</i></a> -->
+                <a href="{{ url_for('favourite', work_id=work._id) }}"><i class="material-icons right">favorite_border</i></a>
             {% endif %}
         </div>
-    {% endfor %}
 </div>
-
 {% endblock %}
