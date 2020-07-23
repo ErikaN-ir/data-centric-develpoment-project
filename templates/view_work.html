@@ -8,18 +8,9 @@
             {{ work.title }}<br>
             {{ work.author }}<br>
             {{ work.genre }}<br>
-            <span id="writing-one">{{ work.writing }}</span><br>
+            <!-- Add a for loop here like works.html -->
+            <span id="writing-one">{{ format_poetry_writing(work.writing) }}</span><br>
             </p>
-            <script>
-            function formatWriting(){
-                let unformat = document.getElementById("writing-one").innerHTML;
-                console.log(unformat);
-                let trimmed = unformat.trim();
-                let formatted = trimmed.replace(/\n/g, "<br>");
-                return document.getElementById("writing-one").innerHTML = formatted;
-            }
-            formatWriting();
-            </script>
             {% if session["user"]|lower == work.author|lower %}
                 <a href="{{ url_for('edit_work', work_id=work._id) }}"><i class="material-icons right">edit</i></a>
                 <a href="{{ url_for('delete_work', work_id=work._id) }}"><i class="material-icons right">delete</i></a>
