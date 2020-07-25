@@ -13,8 +13,7 @@
         <div class="row">
             <div class="input-field col s12">
                 <i class="material-icons prefix">local_library</i>
-                <select id="genre" name="genre_name">
-                    <option value="" disabled selected>Choose Genre</option>
+                <select id="genre" name="genre" required>
                     {% for gen in genres %}
                         {% if gen.genre_name == work.genre %}
                         <option value="{{ gen.genre_name }}" selected>{{ gen.genre_name }}</option>
@@ -40,15 +39,6 @@
                 {{- work.writing -}}
                 </textarea>
                 <label for="icon_prefix">Creation</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="switch">
-                <label>
-                    <input id="feedback" class="feedback" type="checkbox">
-                    <span class="lever"></span>
-                    Enable Feedback
-                </label>
             </div>
         </div>
         <div class="row">

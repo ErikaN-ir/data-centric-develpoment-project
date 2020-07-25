@@ -12,7 +12,7 @@
                 </div>
                 <div class="input-field col s12 m8">
                     <select id="search-key" name="search-key">
-                        <option value="" disabled selected>Choose Genre</option>
+                        <option value="" disabled selected>Choose Category</option>
                         {% for key in keys %}
                         <option value="{{key.key_name}}">{{key.key_name}}</option>
                         {% endfor %}
@@ -57,26 +57,14 @@
 
 <div>
     {% for work in works %}
-        {% set writingloop = loop %}
-        <div>
+        <div class="page">
             <p><a href="{{ url_for('view_work', work_id=work._id) }}">{{ work.title }}</a></p>
             <p>{{ work.author }}</p>
             <p>{{ work.genre }}</p>
             <p>Writings:</p>
             {% for writing in format_poetry_writing(work.writing) %}
-            <p>{{writing}}</p>
+            <p class="format-text">{{writing}}</p>
             {% endfor %}
-            <!-- <span id="writing-{{ writingloop.index }}">{{ format_poetry_writing(work.writing) }}</span><br> -->
-            <!-- <script>
-            function formatWriting(){
-                let unformat = document.getElementById("writing-{{ writingloop.index }}").innerHTML;
-                console.log(unformat);
-                let trimmed = unformat.trim();
-                let formatted = trimmed.replace(/\n/g, "<br>");
-                return document.getElementById("writing-{{ writingloop.index }}").innerHTML = formatted;
-            }
-            formatWriting();
-            </script> -->
         </div>
     {% endfor %}
 </div>

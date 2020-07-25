@@ -9,6 +9,7 @@ from flask import (
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
+import pymongo
 
 if os.path.exists("env.py"):
     import env
@@ -30,39 +31,70 @@ def is_logged_in():
 #     print(writing)
 #     return writing.split('\n')
 
+
 def format_poetry_writing(writing: str) -> str:
     print(writing)
-    return writing.split('\n')
+    format_writing = writing.replace('\t', '        ')
+    return format_writing.split('\n')
+
+
+def something_like_buttons(work_id):
+    print(work_id)
+    print(session["user"])
+    all_likes = mongo.db.likes.find(
+        {
+            "work_id": work_id,
+            "user": session["user"],
+        })
+    if all_likes.count() > 0:
+        return "true"
+    else:
+        return "false"
 
 @app.context_processor
 def utility_processor():
     # Referenced from: https://stackoverflow.com/questions/6036082/call-a-python-function-from-jinja2
-    return dict(format_poetry_writing=format_poetry_writing,)
+    return dict(
+        format_poetry_writing=format_poetry_writing,
+        something_like_buttons=something_like_buttons)
 
 # --------------------- ENDPOINTS ---------------------
+
+
 @app.route("/")
 @app.route("/home")
 def get_works():
-    works = mongo.db.works.find()
+    works = mongo.db.works.find().sort("_id", pymongo.DESCENDING)
     likes = mongo.db.likes.find()
     _genres = mongo.db.genres.find()
     genre_list = [genre for genre in _genres]
+    _keys = mongo.db.keys.find()
+    key_list = [key for key in _keys]
     return render_template(
-        "works.html", works=works, likes=likes, genres=genre_list)
+        "works.html", works=works, likes=likes,
+        genres=genre_list, keys=key_list)
 
 
 # --------------------- SEARCH ---------------------
 @app.route("/search", methods=["GET", "POST"])
 def search():
     query = request.form.get("query")
+    category = request.form.get("search-key")
+    _keys = mongo.db.keys.find()
+    key_list = [key for key in _keys]
+    likes = mongo.db.likes.find()
+    _genres = mongo.db.genres.find()
+    genre_list = [genre for genre in _genres]
     try:
         works = mongo.db.works.find(
-            {"writing": {"$regex": f'{query}', '$options': 'i'}})
+            {category: {"$regex": f'{query}', '$options': 'i'}})
     except Exception as e:
         print(e)
         flash("Couldn't find any works with that query.")
         return redirect(url_for("get_works"))
-    return render_template("works.html", works=works)
+    return render_template(
+        "works.html", works=works, likes=likes,
+        genres=genre_list, keys=key_list)
 
 
 @app.route("/filter_works", methods=["GET", "POST"])
@@ -70,39 +102,53 @@ def filter_works():
     works = mongo.db.works.find({
         "genre": request.form.get("genre_name")
     })
-    genres = list(mongo.db.genres.find())
-    return render_template("works.html", works=works, genres=genres)
+    genres = mongo.db.genres.find()
+    genre_list = [genre for genre in genres]
+    likes = mongo.db.likes.find()
+    _keys = mongo.db.keys.find()
+    key_list = [key for key in _keys]
+    return render_template(
+        "works.html", works=works, likes=likes,
+        genres=genre_list, keys=key_list)
 
 
 @app.route("/filter_profile", methods=["GET", "POST"])
 def filter_profile():
-    genre = {
+    genre_form = {
         "genre": request.form.get("genre_name")
     }
     works = mongo.db.works
-    results = works.find(genre)
+    results = works.find(genre_form)
     username = mongo.db.users.find_one(
         {"username": session["user"]})["username"]
-    genre_list = mongo.db.genres.find()
+    genres = mongo.db.genres.find()
+    genre_list = [genre for genre in genres]
+    likes = mongo.db.likes.find()
+    _keys = mongo.db.keys.find()
+    key_list = [key for key in _keys]
     return render_template(
-        "profile.html", username=username, works=results, genres=genre_list)
+        "profile.html", username=username, works=results, likes=likes,
+        genres=genre_list, keys=key_list)
 
 
 @app.route("/filter_favourites", methods=["GET", "POST"])
 def filter_favourites():
-    genre = {
+    genre_form = {
         "genre": request.form.get("genre_name")
     }
     works = mongo.db.works
-    results = works.find(genre)
+    results = works.find(genre_form)
     username = mongo.db.users.find_one(
         {"username": session["user"]})["username"]
     _genres = mongo.db.genres.find()
     genre_list = [genre for genre in _genres]
     likes = mongo.db.likes.find()
+    _keys = mongo.db.keys.find()
+    key_list = [key for key in _keys]
     return render_template(
         "favourites.html", username=username,
-        works=results, genres=genre_list, likes=likes)
+        works=results, genres=genre_list, likes=likes,
+        keys=key_list)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -165,7 +211,8 @@ def profile():
         # grab the user's username from db
         username = mongo.db.users.find_one(
             {"username": session["user"]})["username"]
-        works = mongo.db.works.find()
+        works = mongo.db.works.find(
+        ).sort("_id", pymongo.DESCENDING)
         _genres = mongo.db.genres.find()
         genre_list = [genre for genre in _genres]
         return render_template(
@@ -256,7 +303,8 @@ def update_work(work_id):
             "genre": request.form.get("genre"),
             "writing": request.form.get("writing")
         }
-
+        test = request.form.get("genre")
+        print("genre submit =" + test)
         try:
             mongo.db.works.update_one(
                 {"_id": ObjectId(work_id)}, {'$set': submit})
@@ -279,6 +327,7 @@ def view_work(work_id):
     try:
         the_work = mongo.db.works.find_one({"_id": ObjectId(work_id)})
         likes = mongo.db.likes.find()
+            # {'work_id': {'$in': [work['_id'] for work in the_work]}})
     except bson.errors.InvalidId:
         flash("Work not found!", "error")
         return redirect(url_for("get_works"))
@@ -289,6 +338,8 @@ def view_work(work_id):
         'view_work.html', work=the_work, likes=likes)
 
 # ----------------------- FAVOURITES/LIKES -----------------------
+
+
 @app.route("/favourite/<work_id>")
 def favourite(work_id):
     """
@@ -323,6 +374,28 @@ def favourite(work_id):
     return redirect(url_for("login"))
 
 
+@app.route("/unfavourite/<work_id>")
+def unfavourite(work_id):
+    """
+    Endpoint to remove a work to favourites
+    """
+    if is_logged_in():
+        try:
+            mongo.db.likes.remove({
+                "user": session["user"],
+                "work_id": ObjectId(work_id)
+            })
+            flash("Removed from favourites!", "info")
+        except bson.errors.InvalidId:
+            flash("Work not found!", "error")
+            return redirect(url_for("get_works"))
+        except Exception:
+            flash("An error occurred", "error")
+            return redirect(url_for("get_works"))
+        return redirect(url_for('my_favourites'))
+    return redirect(url_for("login"))
+
+
 @app.route("/my_favourites", methods=["GET", "POST"])
 def my_favourites():
     if is_logged_in():
@@ -336,7 +409,8 @@ def my_favourites():
         # SELECT * FROM works
         # where id in (..., ...)
         works = mongo.db.works.find(
-            {'_id': {'$in': [like['work_id'] for like in likes]}})
+            {'_id': {'$in': [like['work_id'] for like in likes]}}
+            ).sort("_id", pymongo.DESCENDING)
         genre_list = list(mongo.db.genres.find())
         return render_template(
             "favourites.html",

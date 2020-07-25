@@ -3,22 +3,37 @@
 
 <h3>View</h3>
 <div class="row">
-        <div>
-            <p>
-            {{ work.title }}<br>
-            {{ work.author }}<br>
-            {{ work.genre }}<br>
-            <!-- Add a for loop here like works.html -->
-            <span id="writing-one">{{ format_poetry_writing(work.writing) }}</span><br>
-            </p>
+    <div>
+        <p>
+        {{ work.title }}<br>
+        <p>{{ work.author }}</p>
+        <p>{{ work.genre }}</p>
+        <!-- Add a for loop here like works.html -->
+        <p>Writings:</p>
+        {% for writing in format_poetry_writing(work.writing) %}
+            <p>{{writing}}</p>
+        {% endfor %}
+        <p>Likes.user</p>
+        {{ likes.user}}
+        <p>session user</p>
+        {{ session["user"] }}
+        <p>Work._id</p>
+        {{ work._id }}
+        <p>Likes.work_id</p>
+        {{ likes.work_id }}
+        like_buttons(work_id)
+
+        {{something_like_buttons(work._id)}}
+
             {% if session["user"]|lower == work.author|lower %}
                 <a href="{{ url_for('edit_work', work_id=work._id) }}"><i class="material-icons right">edit</i></a>
                 <a href="{{ url_for('delete_work', work_id=work._id) }}"><i class="material-icons right">delete</i></a>
-            {% elif ( (session["user"]|lower == likes.user|lower) and (work._id == likes.work_id) ) %}
-                <a href="/"><i class="material-icons right">favorite</i></a>
+            {% elif something_like_buttons(work._id) == "true" %}
+                <a href="{{ url_for('unfavourite', work_id=work._id) }}"><i class="material-icons right">favorite</i></a>
             {% else %}
                 <a href="{{ url_for('favourite', work_id=work._id) }}"><i class="material-icons right">favorite_border</i></a>
             {% endif %}
-        </div>
+        </p>
+    </div>
 </div>
 {% endblock %}

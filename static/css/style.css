@@ -1,0 +1,9 @@
+.page {
+    background:url(../images/page2.png);
+    background-repeat: no-repeat;
+    background-size: 300px;
+}
+
+.format-text {
+    white-space: pre;
+}
