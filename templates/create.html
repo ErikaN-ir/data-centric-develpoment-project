@@ -1,47 +1,50 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h3>Create!</h3>
-<div class="row">
-    <form action="{{ url_for('insert_work') }}" method="POST" class="col s12">
+<h1 class="center-align">Create!</h1>
+<div class="center">
+    <div class="row">
+    <div class="form-div center">
+    <form id="create-form" action="{{ url_for('insert_work') }}" method="POST" class="col s12">
         <div class="row">
             <div class="input-field col s12">
-                <i class="material-icons prefix">person</i>
-                <p>Author:{{ username }}</p>
+                <i class="material-icons prefix create-icons">person</i>
+                <p class="create-author">Author: <span class="create-auth-name">{{ username }}</span></p>
             </div>
         </div>
         <div class="row">
             <div class="input-field col s12">
-                <i class="material-icons prefix">local_library</i>
+                <i class="material-icons prefix create-icons">local_library</i>
                 <select id="genre" name="genre_name" required>
-                    <option value="" disabled selected>Choose Genre</option>
+                    <option value="" id="unused-option" disabled selected>Choose Genre</option>
                     {% for gen in genres %}
                     <option value="{{gen.genre_name}}">{{gen.genre_name}}</option>
                     {% endfor %}
                 </select>
-                <label>Genre</label>
             </div>
         </div>
         <div class="row">
             <div class="input-field col s12">
-                <i class="material-icons prefix">grade</i>
+                <i class="material-icons prefix create-icons">grade</i>
                 <input id="title" name="title" type="text" class="validate" required>
                 <label for="icon_prefix">Title</label>
             </div>
         </div>
         <div class="row">
             <div class="input-field col s12">
-                <i class="material-icons prefix">create</i>
+                <i class="material-icons prefix create-icons">create</i>
                 <textarea name="writing" id="writing" class="materialize-textarea" required></textarea>
                 <label for="icon_prefix">Creation</label>
             </div>
         </div>
         <div class="row">
-            <button class="btn waves-effect waves-light" type="submit" name="action">Publish Work
+            <button id="publish-btn" class="btn waves-effect waves-light" type="submit" name="action">Publish Work
                 <i class="material-icons right">playlist_add</i>
             </button>
         </div>
     </form>
+    </div>
+    </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

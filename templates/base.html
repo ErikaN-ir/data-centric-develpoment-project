@@ -5,19 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
     <title>WritingIn</title>
 </head>
 <body>
     <header>
         <nav>
-            <div class="nav-wrapper">
-                <a href="" class="brand-logo">WritingIn</a>
+            <div class="nav-wrapper nav-base">
+                <a href="{{ url_for('get_works') }}" class="brand-logo">WritingIn</a>
                 <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
                 <ul id="nav-mobile" class="right hide-on-med-and-down">
                     <li><a href="{{ url_for('get_works') }}">Home</a></li>
                     {% if session.user %}
                         <li><a href="{{ url_for('profile', username=session['user']) }}">Profile</a></li>
+                        <li><a href="{{ url_for('add_work') }}">Create</a></li>
                         <li><a href="{{ url_for('my_favourites', username=session['user']) }}">Favourites</a></li>
                         <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}
@@ -29,6 +31,7 @@
                     <li><a href="{{ url_for('get_works') }}">Home</a></li>
                     {% if session.user %}
                         <li><a href="{{ url_for('profile', username=session['user']) }}">Profile</a></li>
+                        <li><a href="{{ url_for('add_work') }}">Create</a></li>
                         <li><a href="{{ url_for('my_favourites', username=session['user']) }}">Favourites</a></li>
                         <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}

@@ -1,39 +1,50 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h3>View</h3>
-<div class="row">
-    <div>
-        <p>
-        {{ work.title }}<br>
-        <p>{{ work.author }}</p>
-        <p>{{ work.genre }}</p>
-        <!-- Add a for loop here like works.html -->
-        <p>Writings:</p>
-        {% for writing in format_poetry_writing(work.writing) %}
-            <p>{{writing}}</p>
-        {% endfor %}
-        <p>Likes.user</p>
-        {{ likes.user}}
-        <p>session user</p>
-        {{ session["user"] }}
-        <p>Work._id</p>
-        {{ work._id }}
-        <p>Likes.work_id</p>
-        {{ likes.work_id }}
-        like_buttons(work_id)
+<h1 class="center-align">View</h1>
 
-        {{something_like_buttons(work._id)}}
+<div class="row center">
 
-            {% if session["user"]|lower == work.author|lower %}
-                <a href="{{ url_for('edit_work', work_id=work._id) }}"><i class="material-icons right">edit</i></a>
-                <a href="{{ url_for('delete_work', work_id=work._id) }}"><i class="material-icons right">delete</i></a>
-            {% elif something_like_buttons(work._id) == "true" %}
-                <a href="{{ url_for('unfavourite', work_id=work._id) }}"><i class="material-icons right">favorite</i></a>
-            {% else %}
-                <a href="{{ url_for('favourite', work_id=work._id) }}"><i class="material-icons right">favorite_border</i></a>
-            {% endif %}
-        </p>
-    </div>
+        <div class="container page-view center">
+
+
+            <div class="view-row row">
+                <div class="button-div">
+                
+                {% if session["user"]|lower == work.author|lower %}
+                    <a href="{{ url_for('edit_work', work_id=work._id) }}"><i id="edit-button" class="material-icons right">edit</i></a>
+                    <a href="{{ url_for('delete_work', work_id=work._id) }}"><i id="del-button" class="material-icons right">delete</i></a>
+                {% elif something_like_buttons(work._id) == "true" %}
+                    <a href="{{ url_for('unfavourite', work_id=work._id) }}"><i id="unfav-button" class="material-icons right">sentiment_very_satisfied</i></a>
+                {% else %}
+                    <a href="{{ url_for('favourite', work_id=work._id) }}"><i id="fav-button" class="material-icons right">sentiment_neutral</i></a>
+                {% endif %}
+        
+                <div class="works-btn left"><a class="btn-light" href="{{ url_for('get_works') }}">Back To Works</a></div>
+                </div>
+            </div>
+            <div class="view-row row">
+                <p class="left view-genre">{{ work.genre }}</p>
+                 
+            </div>
+
+            <div class="scroll">
+                <div class="view-row row ">
+                    <div class="center preview-author">{{ work.author }}</div>
+                </div>
+                <div class="view-row row">
+                    <div class="preview-title">{{ work.title }}</div>
+                </div>
+                
+                <div class="view-row row">
+                    {% for writing in format_poetry_writing(work.writing) %}
+                    <p class="format-view left">{{writing}}</p>
+                    {% endfor %}
+                </div>
+            </div>
+           
+            
+        </div>
+    
 </div>
 {% endblock %}

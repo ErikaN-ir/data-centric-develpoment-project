@@ -1,5 +1,6 @@
 $(document).ready(function () {
-    $(".sidenav").sideNav({edge: "right"});
+    $('.tooltipped').tooltip({delay: 50});
+    $(".button-collapse").sideNav({edge: "left"});
     $(".collapsible").collapsible();
     $(".tooltipped").tooltip();
     $('select').material_select();

@@ -4,34 +4,34 @@
     <div class="row">
         <div class="col s12 m8 offset-m2">
             <div class="card-panel">
-                <h3 class="center-align light-blue-text text-darken-4">
+                <h1 class="center-align">
                     {{ username }}'s Favourites
-                </h3>
+                </h1>
             </div>
         </div>
     </div>
 
-    <div class="row card-panel grey lighten-5">
-        <form action="{{ url_for('filter_favourites') }}" method="POST" class="col s12">
-            <div class="row valign-wrapper center-align">
-                <div class="input-field col s12 m8">
-                    <select id="genre-filter" name="genre_name">
-                        <option value="" disabled selected>Choose Genre</option>
-                        {% for gen in genres %}
-                        <option value="{{gen.genre_name}}">{{gen.genre_name}}</option>
-                        {% endfor %}
-                    </select>
-                    <label>Genre</label>
-                </div>
-                <div class="col s12 m4">
-                    <a href="{{ url_for('my_favourites') }}" class="red btn text-shadow">Reset</a>
-                    <button type="submit" class="light-blue darken-1 btn text-shadow">
-                        <i class="fas fa-search left"></i> Filter
+<div class="row">
+    <div id="filter-div" class="col s12">
+        <form action="{{ url_for('filter_favourites') }}" method="POST" class="">
+                    <div class="col s12 m6 l4 offset-l3 input-field center-align">
+                        <select id="genre-filter" name="genre_name">
+                            <option value="" disabled selected>Filter By Genre</option>
+                            {% for gen in genres %}
+                            <option value="{{gen.genre_name}}">{{gen.genre_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                
+                <div class="col s12 m6 l3 center-align">
+                    <a href="{{ url_for('my_favourites') }}" class="reset-button">Reset</a>
+                    <button type="submit" class="filter-button">
+                        <i class="fas fa-list left"></i> Filter
                     </button>
                 </div>
-            </div>
         </form>
     </div>
+</div>
 <div>
     {% for work in works %}
         {% set writingloop = loop %}

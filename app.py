@@ -40,16 +40,17 @@ def format_poetry_writing(writing: str) -> str:
 
 def something_like_buttons(work_id):
     print(work_id)
-    print(session["user"])
-    all_likes = mongo.db.likes.find(
-        {
-            "work_id": work_id,
-            "user": session["user"],
-        })
-    if all_likes.count() > 0:
-        return "true"
-    else:
-        return "false"
+    if is_logged_in():
+        all_likes = mongo.db.likes.find(
+            {
+                "work_id": work_id,
+                "user": session["user"],
+            })
+        if all_likes.count() > 0:
+            return "true"
+        else:
+            return "false"
+    return "false"
 
 @app.context_processor
 def utility_processor():
