@@ -23,15 +23,21 @@ mongo = PyMongo(app)
 
 
 # --------------------- UTIL FUNCTIONS AND CONTEXTS ---------------------
+# gets user info
 def is_logged_in():
     return session.get('user')
 
 
+# general filter function for home, profile and favourites filter forms
 def get_filter_data(request, filter_criteria: dict):
     if not request.form.get("genre_name"):
         flash("Please enter a genre when filtering.", 'error')
         return redirect(url_for("get_works"))
-
+    # works is a collection of writing info (keys: author, genre, title, content)
+    # genres is a collection of all the genre forms (key(s): genre_name)
+    # likes is a collection of all the works of other users that have been liked by the user
+    # likes (key(s): user, work_id)
+    # keys is a collection of the searchable keys in the works collection eg. author (key(s): key_name)
     works = mongo.db.works.find(filter_criteria)
     genre_list = mongo.db.genres.find()
     likes = mongo.db.likes.find()
@@ -41,12 +47,14 @@ def get_filter_data(request, filter_criteria: dict):
                 genres=genre_list, keys=key_list)
 
 
+# formats the writing content for html rendering (tabs nad new lines)
 def format_poetry_writing(writing: str) -> str:
     print(writing)
     format_writing = writing.replace('\t', '        ')
     return format_writing.split('\n')
 
 
+# determine whether like (favourite) or unlike (unfavourite) button displays
 def something_like_buttons(work_id):
     print(work_id)
     if is_logged_in():
@@ -69,11 +77,14 @@ def utility_processor():
         format_poetry_writing=format_poetry_writing,
         something_like_buttons=something_like_buttons)
 
-# --------------------- ENDPOINTS ---------------------
+# ------------------------- ENDPOINTS -------------------------
+# -------------------------- HOME -----------------------------
 
 
 @app.route("/")
 @app.route("/home")
+# displays works from all the app users
+# don't need to be logged in to view works
 def get_works():
     works = mongo.db.works.find().sort("_id", pymongo.DESCENDING)
     likes = mongo.db.likes.find()
@@ -84,7 +95,8 @@ def get_works():
         genres=genre_list, keys=key_list)
 
 
-# --------------------- SEARCH ---------------------
+# --------------------- SEARCH ----------------------------
+# search function for queries in authors, titles, content
 @app.route("/search", methods=["GET", "POST"])
 def search():
     query = request.form.get("query")
@@ -104,8 +116,11 @@ def search():
         flash("Couldn't find any works with that query.", 'error')
     return redirect(url_for("get_works"))
 
+# -------------------------- FILTERS -----------------------------
+
 
 @app.route("/filter_works", methods=["GET", "POST"])
+# filters works from all users on home page
 def filter_works():
     data = get_filter_data(request, {"genre": request.form.get("genre_name")})
     if not isinstance(data, dict):
@@ -114,6 +129,7 @@ def filter_works():
 
 
 @app.route("/filter_profile", methods=["GET", "POST"])
+# filters user's works by genre displayed on profile.html
 def filter_profile():
     work_filter = {
         "genre": request.form.get("genre_name"),
@@ -132,6 +148,7 @@ def filter_profile():
 
 
 @app.route("/filter_favourites", methods=["GET", "POST"])
+# filters works by genre displayed in favourites collection
 def filter_favourites():
     data = get_filter_data(request, {"genre": request.form.get("genre_name")})
     if not isinstance(data, dict):
@@ -141,8 +158,11 @@ def filter_favourites():
     return render_template(
         "favourites.html", username=username, **data)
 
+# -------------------------- REGISTER -----------------------------
+
 
 @app.route("/register", methods=["GET", "POST"])
+# register user
 def register():
     if request.method == "POST":
         # check if username already exists in db
@@ -166,8 +186,11 @@ def register():
 
     return render_template("register.html")
 
+# -------------------------- LOGIN -----------------------------
+
 
 @app.route("/login", methods=["GET", "POST"])
+# login user
 def login():
     if request.method == "POST":
         # check if username exists in db
@@ -195,8 +218,11 @@ def login():
 
     return render_template("login.html")
 
+# -------------------------- PROFILE -----------------------------
+
 
 @app.route("/profile", methods=["GET", "POST"])
+# displays user's own work and provides genres for filter
 def profile():
     if is_logged_in():  # If user is logged in
         # grab the user's username from db
@@ -212,7 +238,11 @@ def profile():
     return redirect(url_for("login"))
 
 
+# -------------------------- LOGOUT -----------------------------
+
+
 @app.route("/logout")
+# logout function
 def logout():
     # remove user from session cookies
     flash("You have been logged out", "info")
@@ -223,7 +253,11 @@ def logout():
     return redirect(url_for("login"))
 
 
+# -------------------------- CREATE -----------------------------
+
+
 @app.route("/add_work")
+# redirects to create.html if logged in
 def add_work():
     if is_logged_in():
         genre_list = mongo.db.genres.find()
@@ -235,6 +269,7 @@ def add_work():
 
 
 @app.route("/insert_work", methods=['POST'])
+# adds work to db
 def insert_work():
     submit = {
         "author": session["user"],
@@ -245,8 +280,11 @@ def insert_work():
     mongo.db.works.insert_one(submit)
     return redirect(url_for('profile'))
 
+# -------------------------- DELETE -----------------------------
+
 
 @app.route("/delete/<work_id>")
+# removes work form db
 def delete_work(work_id):
     if is_logged_in():
         try:
@@ -259,8 +297,11 @@ def delete_work(work_id):
         return redirect(url_for("get_works"))
     return redirect(url_for("login"))
 
+# -------------------------- EDIT -----------------------------
+
 
 @app.route("/edit_work/<work_id>")
+# opens the relevant work for editing
 def edit_work(work_id):
     if is_logged_in():
         username = mongo.db.users.find_one(
@@ -282,6 +323,7 @@ def edit_work(work_id):
 
 
 @app.route("/update_work/<work_id>", methods=["POST"])
+# updates changes to the db
 def update_work(work_id):
     # A decorator could've been used for this login check functionality
     if is_logged_in():
@@ -308,8 +350,11 @@ def update_work(work_id):
 
     return redirect(url_for("login"))
 
+# -------------------------- READ/VIEW -----------------------------
+
 
 @app.route("/view_work/<work_id>")
+# opens individual work in browser
 def view_work(work_id):
     # don't need login - edit/delete & like buttons only there if logged in
     try:
@@ -329,6 +374,7 @@ def view_work(work_id):
 
 
 @app.route("/favourite/<work_id>")
+# adds work to user's "liked" collection/list
 def favourite(work_id):
     """
     Endpoint to add a work to favourites
@@ -365,6 +411,7 @@ def favourite(work_id):
 
 
 @app.route("/unfavourite/<work_id>")
+# removes work from user's liked list
 def unfavourite(work_id):
     """
     Endpoint to remove a work to favourites
@@ -387,6 +434,7 @@ def unfavourite(work_id):
 
 
 @app.route("/my_favourites", methods=["GET", "POST"])
+# View all works (of other users) that this user "liked"
 def my_favourites():
     if is_logged_in():
         # If user is logged in
