@@ -2,7 +2,7 @@
 {% block content %}
 
     <div class="row">
-        <div class="col s12 m8 offset-m2">
+        <div class="col s12 m6 offset-m3">
             <div class="card-panel">
                 <h1 class="center-align">
                     {{ username }}'s Favourites
@@ -32,26 +32,36 @@
         </form>
     </div>
 </div>
-<div>
+
+<div class="row center">
     {% for work in works %}
-        {% set writingloop = loop %}
-        <p>
-        <a href="{{ url_for('view_work', work_id=work._id) }}">{{ work.title }}</a><br>
-        {{ work.author }}<br>
-        {{ work.genre }}<br>
-        <span id="writing-{{ writingloop.index }}">{{ work.writing }}</span><br>
-        </p>
-        <script>
-        function formatWriting(){
-            let unformat = document.getElementById("writing-{{ writingloop.index }}").innerHTML;
-            console.log(unformat);
-            let trimmed = unformat.trim();
-            let formatted = trimmed.replace(/\n/g, "<br>");
-            return document.getElementById("writing-{{ writingloop.index }}").innerHTML = formatted;
-        }
-        formatWriting();
-        </script>
+            <div class="work-div center">
+                <div class="page">
+                    <div class="row">
+                        <div class="read-more-btn right"><a class="btn-light" href="{{ url_for('view_work', work_id=work._id) }}">Read</a></div>
+                        <p class="left preview-genre">{{ work.genre }}</p>
+                        <a href="{{ url_for('unfavourite', work_id=work._id) }}"><i id="pro-unfav-button" class="material-icons center">sentiment_very_satisfied</i></a>
+                    </div>
+
+                    <div class="scroll">
+                        <div class="row">
+                            <div class="center preview-author">{{ work.author }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="preview-title">{{ work.title }}</div>
+                        </div>
+                        
+                        <div class="row">
+                            {% for writing in format_poetry_writing(work.writing) %}
+                            <p class="format-preview left">{{writing}}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
     {% endfor %}
 </div>
+
 
 {% endblock %}

@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1 class="center-align">The Works</h1>
-<h2 class="center-align">Sign Up, Read, Write & Share!</h2>
+<div class="row">
+    <div class="col s12 m6 offset-m3">
+        <div class="card-panel">
+            <h1 class="center-align">The Works</h1>
+            <h2 class="center-align">Sign Up, Read, Write & Share!</h2>
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <div id="filter-div" class="col s12 m6">
@@ -61,10 +67,6 @@
     </div>
 </div>
 
-
-    
-
-<a class="btn tooltipped" data-position="bottom" data-delay="50" data-tooltip="I am a tooltip">Hover me!</a>
  
 <div class="row center">
     {% for work in works %}
