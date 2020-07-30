@@ -26,10 +26,19 @@ mongo = PyMongo(app)
 def is_logged_in():
     return session.get('user')
 
-# @app.context_processor
-# def format_poetry_writing(writing: str) -> str:
-#     print(writing)
-#     return writing.split('\n')
+
+def get_filter_data(request, filter_criteria: dict):
+    if not request.form.get("genre_name"):
+        flash("Please enter a genre when filtering.", 'error')
+        return redirect(url_for("get_works"))
+
+    works = mongo.db.works.find(filter_criteria)
+    genre_list = mongo.db.genres.find()
+    likes = mongo.db.likes.find()
+    key_list = mongo.db.keys.find()
+
+    return dict(works=works, likes=likes,
+                genres=genre_list, keys=key_list)
 
 
 def format_poetry_writing(writing: str) -> str:
@@ -52,6 +61,7 @@ def something_like_buttons(work_id):
             return "false"
     return "false"
 
+
 @app.context_processor
 def utility_processor():
     # Referenced from: https://stackoverflow.com/questions/6036082/call-a-python-function-from-jinja2
@@ -67,10 +77,8 @@ def utility_processor():
 def get_works():
     works = mongo.db.works.find().sort("_id", pymongo.DESCENDING)
     likes = mongo.db.likes.find()
-    _genres = mongo.db.genres.find()
-    genre_list = [genre for genre in _genres]
-    _keys = mongo.db.keys.find()
-    key_list = [key for key in _keys]
+    genre_list = mongo.db.genres.find()
+    key_list = mongo.db.keys.find()
     return render_template(
         "works.html", works=works, likes=likes,
         genres=genre_list, keys=key_list)
@@ -80,76 +88,58 @@ def get_works():
 @app.route("/search", methods=["GET", "POST"])
 def search():
     query = request.form.get("query")
-    category = request.form.get("search-key")
-    _keys = mongo.db.keys.find()
-    key_list = [key for key in _keys]
+    key_list = mongo.db.keys.find()
     likes = mongo.db.likes.find()
-    _genres = mongo.db.genres.find()
-    genre_list = [genre for genre in _genres]
+    genre_list = mongo.db.genres.find()
     try:
+        category = request.form.get("search-key")
+        if not category:
+            raise Exception("Category cannot be None")
         works = mongo.db.works.find(
-            {category: {"$regex": f'{query}', '$options': 'i'}})
+            {category.lower(): {"$regex": f'{query}', '$options': 'i'}})
+        return render_template("works.html", works=works or [], likes=likes,
+                               genres=genre_list, keys=key_list)
     except Exception as e:
         print(e)
-        flash("Couldn't find any works with that query.")
-        return redirect(url_for("get_works"))
-    return render_template(
-        "works.html", works=works, likes=likes,
-        genres=genre_list, keys=key_list)
+        flash("Couldn't find any works with that query.", 'error')
+    return redirect(url_for("get_works"))
 
 
 @app.route("/filter_works", methods=["GET", "POST"])
 def filter_works():
-    works = mongo.db.works.find({
-        "genre": request.form.get("genre_name")
-    })
-    genres = mongo.db.genres.find()
-    genre_list = [genre for genre in genres]
-    likes = mongo.db.likes.find()
-    _keys = mongo.db.keys.find()
-    key_list = [key for key in _keys]
-    return render_template(
-        "works.html", works=works, likes=likes,
-        genres=genre_list, keys=key_list)
+    data = get_filter_data(request, {"genre": request.form.get("genre_name")})
+    if not isinstance(data, dict):
+        return data
+    return render_template("works.html", **data)
 
 
 @app.route("/filter_profile", methods=["GET", "POST"])
 def filter_profile():
-    genre_form = {
-        "genre": request.form.get("genre_name")
+    work_filter = {
+        "genre": request.form.get("genre_name"),
+        "author": session["user"].lower()
     }
-    works = mongo.db.works
-    results = works.find(genre_form)
+
+    data = get_filter_data(request, work_filter)
+    if not isinstance(data, dict):
+        return data
+
     username = mongo.db.users.find_one(
         {"username": session["user"]})["username"]
-    genres = mongo.db.genres.find()
-    genre_list = [genre for genre in genres]
-    likes = mongo.db.likes.find()
-    _keys = mongo.db.keys.find()
-    key_list = [key for key in _keys]
+
     return render_template(
-        "profile.html", username=username, works=results, likes=likes,
-        genres=genre_list, keys=key_list)
+        "profile.html", username=username, **data)
 
 
 @app.route("/filter_favourites", methods=["GET", "POST"])
 def filter_favourites():
-    genre_form = {
-        "genre": request.form.get("genre_name")
-    }
-    works = mongo.db.works
-    results = works.find(genre_form)
+    data = get_filter_data(request, {"genre": request.form.get("genre_name")})
+    if not isinstance(data, dict):
+        return data
     username = mongo.db.users.find_one(
         {"username": session["user"]})["username"]
-    _genres = mongo.db.genres.find()
-    genre_list = [genre for genre in _genres]
-    likes = mongo.db.likes.find()
-    _keys = mongo.db.keys.find()
-    key_list = [key for key in _keys]
     return render_template(
-        "favourites.html", username=username,
-        works=results, genres=genre_list, likes=likes,
-        keys=key_list)
+        "favourites.html", username=username, **data)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -171,7 +161,7 @@ def register():
         mongo.db.users.insert_one(register)
         # put the new user into 'session' cookie
         session["user"] = request.form.get("username").lower()
-        flash("Registration Successful!")
+        flash("Registration Successful!", 'info')
         return redirect(url_for("profile", username=session["user"]))
 
     return render_template("register.html")
@@ -190,7 +180,7 @@ def login():
                     existing_user["password"], request.form.get("password")):
                 session["user"] = request.form.get("username").lower()
                 flash("Welcome, {}".format(
-                    request.form.get("username")))
+                    request.form.get("username")), "info")
                 return redirect(url_for(
                     "profile", username=session["user"]))
             else:
@@ -214,8 +204,7 @@ def profile():
             {"username": session["user"]})["username"]
         works = mongo.db.works.find(
         ).sort("_id", pymongo.DESCENDING)
-        _genres = mongo.db.genres.find()
-        genre_list = [genre for genre in _genres]
+        genre_list = mongo.db.genres.find()
         return render_template(
             "profile.html", username=username, works=works, genres=genre_list)
 
@@ -226,7 +215,7 @@ def profile():
 @app.route("/logout")
 def logout():
     # remove user from session cookies
-    flash("You have been logged out", "success")
+    flash("You have been logged out", "info")
     # Added None default so any other attempts
     # to logout by a non-logged in user
     # will not throw an error
@@ -237,8 +226,7 @@ def logout():
 @app.route("/add_work")
 def add_work():
     if is_logged_in():
-        _genres = mongo.db.genres.find()
-        genre_list = [genre for genre in _genres]
+        genre_list = mongo.db.genres.find()
         username = mongo.db.users.find_one(
             {"username": session["user"]})["username"]
         return render_template(
@@ -248,14 +236,13 @@ def add_work():
 
 @app.route("/insert_work", methods=['POST'])
 def insert_work():
-    works = mongo.db.works
     submit = {
         "author": session["user"],
         "title": request.form.get("title"),
         "genre": request.form.get("genre_name"),
         "writing": request.form.get("writing")
     }
-    works.insert_one(submit)
+    mongo.db.works.insert_one(submit)
     return redirect(url_for('profile'))
 
 
@@ -268,7 +255,7 @@ def delete_work(work_id):
             flash("Work not found!", "error")
             return redirect(url_for("get_works"))
 
-        flash("Work Successfully Deleted", "success")
+        flash("Work Successfully Deleted", "info")
         return redirect(url_for("get_works"))
     return redirect(url_for("login"))
 
@@ -316,7 +303,7 @@ def update_work(work_id):
             flash("An error occurred", "error")
             return redirect(url_for("get_works"))
 
-        flash("Work Successfully Updated", "success")
+        flash("Work Successfully Updated", "info")
         return redirect(url_for("profile"))
 
     return redirect(url_for("login"))
@@ -328,7 +315,7 @@ def view_work(work_id):
     try:
         the_work = mongo.db.works.find_one({"_id": ObjectId(work_id)})
         likes = mongo.db.likes.find()
-            # {'work_id': {'$in': [work['_id'] for work in the_work]}})
+        # {'work_id': {'$in': [work['_id'] for work in the_work]}})
     except bson.errors.InvalidId:
         flash("Work not found!", "error")
         return redirect(url_for("get_works"))
@@ -353,6 +340,7 @@ def favourite(work_id):
                 "work_id": ObjectId(work_id)
             }
 
+            # This was an alternative way to structure the collections
             # mongo.db.user.update_one({'username': session['user'], {'work_ids': }})
             # {
             #     'username': '',
@@ -360,7 +348,8 @@ def favourite(work_id):
             #     'work_ids': ['...', ..., ],
             # }
 
-            upsert_info = mongo.db.likes.update(favourite_info, favourite_info, True)
+            upsert_info = mongo.db.likes.update(
+                favourite_info, favourite_info, True)
             if upsert_info['updatedExisting']:
                 flash("Already in favourites!", "info")
             else:
@@ -411,7 +400,7 @@ def my_favourites():
         # where id in (..., ...)
         works = mongo.db.works.find(
             {'_id': {'$in': [like['work_id'] for like in likes]}}
-            ).sort("_id", pymongo.DESCENDING)
+        ).sort("_id", pymongo.DESCENDING)
         genre_list = list(mongo.db.genres.find())
         return render_template(
             "favourites.html",

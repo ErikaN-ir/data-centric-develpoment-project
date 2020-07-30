@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+<div id="profile-banner" class="row work-banner">
 
     <div class="row">
         <div class="col s12 m6 offset-m3">
@@ -10,7 +11,9 @@
             </div>
         </div>
     </div>
+</div>
 
+<div class="container">
 <div class="row">
     <div id="filter-div" class="col s12">
         <form action="{{ url_for('filter_profile') }}" method="POST" class="">
@@ -32,8 +35,9 @@
         </form>
     </div>
 </div>
-
-
+<div class="row">
+    <h3 class="form-heading center">Your Work:</h3>
+</div>
 <div class="row center">
     {% for work in works %}
         {% if session["user"]|lower == work.author|lower %}
@@ -69,5 +73,5 @@
 
 
 
-
+</div>
 {% endblock %}

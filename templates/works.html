@@ -1,14 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="row">
-    <div class="col s12 m6 offset-m3">
-        <div class="card-panel">
-            <h1 class="center-align">The Works</h1>
-            <h2 class="center-align">Sign Up, Read, Write & Share!</h2>
+
+<div id="work-banner" class="row work-banner">
+
+    <div class="row">
+        <div class="col s12 m6 offset-m3">
+            <div class="card-panel">
+                <h1 class="center-align">The Works</h1>
+                <h2 class="center-align">Sign Up, Read, Write & Share!</h2>
+            </div>
         </div>
     </div>
 </div>
-
+<div class="container">
 <div class="row">
     <div id="filter-div" class="col s12 m6">
         <form action="{{ url_for('filter_works') }}" method="POST" class="">
@@ -95,5 +99,6 @@
         </div>
     </div>
     {% endfor %}
+</div>
 </div>
 {% endblock %}
