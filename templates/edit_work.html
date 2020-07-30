@@ -3,52 +3,57 @@
 <div class="container">
 <h1 class="center-align form-heading">Edit</h1>
 <div class="row">
-    <div class="form-div center">
-
-    <form id="edit-form" action="{{ url_for('update_work', work_id=work._id) }}" method="POST" class="col s12">
-        <div class="row">
+    <!-- Edt Form -->
+   <div class="form-div center">
+      <form id="edit-form" action="{{ url_for('update_work', work_id=work._id) }}" method="POST" class="col s12">
+         <!-- Author field (self-populated) -->
+         <div class="row">
             <div class="input-field col s12">
-                <i class="material-icons prefix create-icons">person</i>
-                <p class="create-author">Author: <span class="create-auth-name">{{ username }}</span></p>
+               <i class="material-icons prefix create-icons">person</i>
+               <p class="create-author">Author: <span class="create-auth-name">{{ username }}</span></p>
             </div>
-        </div>
-        <div class="row">
+         </div>
+         <!-- Genre options (for db) -->
+         <div class="row">
             <div class="input-field col s12">
-                <i class="material-icons prefix create-icons">local_library</i>
-                <select id="genre" name="genre" required>
-                    {% for gen in genres %}
-                        {% if gen.genre_name == work.genre %}
-                        <option value="{{ gen.genre_name }}" selected>{{ gen.genre_name }}</option>
-                        {% else %}
-                        <option value="{{gen.genre_name }}">{{ gen.genre_name }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-                <label class="edit-label" for="genre_name">Genre</label>
+               <i class="material-icons prefix create-icons">local_library</i>
+               <select id="genre" name="genre" required>
+                  {% for gen in genres %}
+                  {% if gen.genre_name == work.genre %}
+                  <option value="{{ gen.genre_name }}" selected>{{ gen.genre_name }}</option>
+                  {% else %}
+                  <option value="{{gen.genre_name }}">{{ gen.genre_name }}</option>
+                  {% endif %}
+                  {% endfor %}
+               </select>
+               <label class="edit-label" for="genre_name">Genre</label>
             </div>
-        </div>
-        <div class="row">
+         </div>
+         <!-- Title of writing -->
+         <div class="row">
             <div class="input-field col s12">
-                <i class="material-icons prefix create-icons">grade</i>
-                <input id="title" name="title" type="text" class="validate" value="{{ work.title }}" required>
-                <label class="edit-label" for="icon_prefix">Title</label>
+               <i class="material-icons prefix create-icons">grade</i>
+               <input id="title" name="title" type="text" class="validate" value="{{ work.title }}" required>
+               <label class="edit-label" for="icon_prefix">Title</label>
             </div>
-        </div>
-        <div class="row">
+         </div>
+         <!-- Content of writing -->
+         <div class="row">
             <div class="input-field col s12">
-                <i class="material-icons prefix create-icons">create</i>
-                <textarea name="writing" id="writing" class="materialize-textarea" value="{{ work.writing }}" required>
-                {{- work.writing -}}
-                </textarea>
-                <label class="edit-label" for="icon_prefix">Creation</label>
+               <i class="material-icons prefix create-icons">create</i>
+               <textarea name="writing" id="writing" class="materialize-textarea" value="{{ work.writing }}" required>
+               {{- work.writing -}}
+               </textarea>
+               <label class="edit-label" for="icon_prefix">Creation</label>
             </div>
-        </div>
-        <div class="row">
+         </div>
+         <!-- Submit button (to update) -->
+         <div class="row">
             <button id="update-btn" class="btn waves-effect waves-light" type="submit" name="action">Update Work
-                <i class="material-icons right">playlist_add</i>
+            <i class="material-icons right">playlist_add</i>
             </button>
-        </div>
-    </form>
-</div>
+         </div>
+      </form>
+   </div>
 </div>
 {% endblock %}

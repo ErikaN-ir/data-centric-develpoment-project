@@ -1,104 +1,107 @@
 {% extends 'base.html' %}
 {% block content %}
-
+<!-- banner image -->
 <div id="work-banner" class="row work-banner">
-
-    <div class="row">
-        <div class="col s12 m6 offset-m3">
-            <div class="card-panel">
-                <h1 class="center-align">The Works</h1>
-                <h2 class="center-align">Sign Up, Read, Write & Share!</h2>
-            </div>
-        </div>
-    </div>
+   <div class="row">
+      <div class="col s12 m6 offset-m3">
+         <div class="card-panel">
+            <h1 class="center-align">The Works</h1>
+            <h2 class="center-align">Sign Up, Read, Write & Share!</h2>
+         </div>
+      </div>
+   </div>
 </div>
 <div class="container">
-<div class="row">
-    <div id="filter-div" class="col s12 m6">
-        <form action="{{ url_for('filter_works') }}" method="POST" class="">
+   <div class="row">
+   <!-- Filter by Genre form -->
+      <div id="filter-div" class="col s12 m6">
+         <form action="{{ url_for('filter_works') }}" method="POST" class="">
             <div class="row valign-wrapper center-align">
-                
-                    <div class="col s12 input-field">
-                        <select id="genre-filter" name="genre_name">
-                            <option value="" disabled selected>Filter By Genre</option>
-                            {% for gen in genres %}
-                            <option value="{{gen.genre_name}}">{{gen.genre_name}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                
+               <div class="col s12 input-field">
+                <!-- Genre options (from db) -->
+                  <select id="genre-filter" name="genre_name">
+                     <option value="" disabled selected>Filter By Genre</option>
+                     {% for gen in genres %}
+                     <option value="{{gen.genre_name}}">{{gen.genre_name}}</option>
+                     {% endfor %}
+                  </select>
+               </div>
             </div>
             <div class="row valign-wrapper center-align">
-                <div class="col s12">
-                    <a href="{{ url_for('get_works') }}" class="reset-button">Reset</a>
-                    <button type="submit" class="filter-button">
-                        <i class="fas fa-list left"></i> Filter
-                    </button>
-                </div>
+               <div class="col s12">
+               <!-- filter reset button -->
+                  <a href="{{ url_for('get_works') }}" class="reset-button">Reset</a>
+                <!-- filter submit button -->
+                  <button type="submit" class="filter-button">
+                  <i class="fas fa-list left"></i> Filter
+                  </button>
+               </div>
             </div>
-        </form>
-    </div>
-
-    <div id="search-div" class="col s12 m6">
-        <form action="{{ url_for('search') }}" method="POST" class="">
+         </form>
+      </div>
+      <!-- Search form -->
+      <div id="search-div" class="col s12 m6">
+         <form action="{{ url_for('search') }}" method="POST" class="">
             <div class="row valign-wrapper center-align">
-                <div class="col s12 input-field">
-                    <i class="fas fa-search prefix work-search-icon"></i>
-                    <input type="text" name="query" id="query" minlength="3" class="validate" required>
-                    <label for="query">Search</label>
-                </div>
+                <!-- Text input -->
+               <div class="col s12 input-field">
+                  <i class="fas fa-search prefix work-search-icon"></i>
+                  <input type="text" name="query" id="query" minlength="3" class="validate" required>
+                  <label for="query">Search</label>
+               </div>
             </div>
             <div class="row valign-wrapper center-align">
-                <div class="col s12 input-field">
-                    <select id="search-key" name="search-key">
-                        <option value="" disabled selected>Category</option>
-                        {% for key in keys %}
-                        <option value="{{key.key_name}}">{{key.key_name}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+               <div class="col s12 input-field">
+               <!-- category options from db (author, title, writing) -->
+                  <select id="search-key" name="search-key">
+                     <option value="" disabled selected>Category</option>
+                     {% for key in keys %}
+                     <option value="{{key.key_name}}">{{key.key_name}}</option>
+                     {% endfor %}
+                  </select>
+               </div>
             </div>
-                
             <div class="row valign-wrapper center-align">
-                <div class="col s12">
-                    <a href="{{ url_for('get_works') }}" class="reset-button">Reset</a>
-                    <button id="search-button" type="submit" class="">
-                        <i class="fas fa-search left"></i> Search
-                    </button>
-                </div>
+            <!-- Search reset and submit buttons -->
+               <div class="col s12">
+                  <a href="{{ url_for('get_works') }}" class="reset-button">Reset</a>
+                  <button id="search-button" type="submit" class="">
+                  <i class="fas fa-search left"></i> Search
+                  </button>
+               </div>
             </div>
-        </form>
-    </div>
-</div>
-
- 
-<div class="row center">
-    {% for work in works %}
-    <div class="work-div center">
-        <div class="page">
+         </form>
+      </div>
+   </div>
+   <!-- Display works for all users -->
+   <div class="row center">
+      {% for work in works %}
+      <div class="work-div center">
+         <div class="page">
             <div class="row">
-                <div class="read-more-btn right"><a class="btn-light" href="{{ url_for('view_work', work_id=work._id) }}">Read</a></div>
-                <p class="left preview-genre">{{ work.genre }}</p>
+            <!-- genre display -->
+               <div class="read-more-btn right"><a class="btn-light" href="{{ url_for('view_work', work_id=work._id) }}">Read</a></div>
+               <p class="left preview-genre">{{ work.genre }}</p>
             </div>
-
             <div class="scroll">
-                <div class="row">
-                    <div class="center preview-author">{{ work.author }}</div>
-                </div>
-                <div class="row">
-                    <div class="preview-title">{{ work.title }}</div>
-                </div>
-                
-                <div class="row">
-                    {% for writing in format_poetry_writing(work.writing) %}
-                    <p class="format-preview left">{{writing}}</p>
-                    {% endfor %}
-                </div>
+            <!-- author's name display -->
+               <div class="row">
+                  <div class="center preview-author">{{ work.author }}</div>
+               </div>
+               <!-- title display -->
+               <div class="row">
+                  <div class="preview-title">{{ work.title }}</div>
+               </div>
+               <!-- writing content display -->
+               <div class="row">
+                  {% for writing in format_poetry_writing(work.writing) %}
+                  <p class="format-preview left">{{writing}}</p>
+                  {% endfor %}
+               </div>
             </div>
-            
-        </div>
-    </div>
-    {% endfor %}
-</div>
+         </div>
+      </div>
+      {% endfor %}
+   </div>
 </div>
 {% endblock %}

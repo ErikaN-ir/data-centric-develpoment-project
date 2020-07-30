@@ -1,52 +1,48 @@
 {% extends 'base.html' %}
 {% block content %}
-
 <div class="container">
-<h1 class="center-align form-heading">View</h1>
-
-<div class="row center">
-
-        <div class="container page-view center">
-
-
-            <div class="view-row row">
-                <div class="button-div">
-                
-                {% if session["user"]|lower == work.author|lower %}
-                    <a href="{{ url_for('edit_work', work_id=work._id) }}"><i id="edit-button" class="material-icons right">edit</i></a>
-                    <a href="{{ url_for('delete_work', work_id=work._id) }}"><i id="del-button" class="material-icons right">delete</i></a>
-                {% elif something_like_buttons(work._id) == "true" %}
-                    <a href="{{ url_for('unfavourite', work_id=work._id) }}"><i id="unfav-button" class="material-icons right">sentiment_very_satisfied</i></a>
-                {% else %}
-                    <a href="{{ url_for('favourite', work_id=work._id) }}"><i id="fav-button" class="material-icons right">sentiment_neutral</i></a>
-                {% endif %}
-        
-                <div class="works-btn left"><a class="btn-light" href="{{ url_for('get_works') }}">Back To Works</a></div>
-                </div>
+   <h1 class="center-align form-heading">View</h1>
+   <div class="row center">
+      <div class="container page-view center">
+         <div class="view-row row">
+         <!-- buttons (edit, delete, like, unlike) -->
+            <div class="button-div">
+            <!-- display edit and delete button if user is author -->
+               {% if session["user"]|lower == work.author|lower %}
+               <a href="{{ url_for('edit_work', work_id=work._id) }}"><i id="edit-button" class="material-icons right">edit</i></a>
+               <a href="{{ url_for('delete_work', work_id=work._id) }}"><i id="del-button" class="material-icons right">delete</i></a>
+               {% elif something_like_buttons(work._id) == "true" %}
+               <!-- display unlike ("unfavourite") button if work is already liked -->
+               <a href="{{ url_for('unfavourite', work_id=work._id) }}"><i id="unfav-button" class="material-icons right">sentiment_very_satisfied</i></a>
+               {% else %}
+               <!-- display like ("unfavourite") button if work is NOT already liked -->
+               <a href="{{ url_for('favourite', work_id=work._id) }}"><i id="fav-button" class="material-icons right">sentiment_neutral</i></a>
+               {% endif %}
+               <!-- button to return to works.html -->
+               <div class="works-btn left"><a class="btn-light" href="{{ url_for('get_works') }}">Back To Works</a></div>
+            </div>
+         </div>
+         <div class="view-row row">
+         <!-- Genre display -->
+            <p class="left view-genre">{{ work.genre }}</p>
+         </div>
+         <div class="scroll">
+            <div class="view-row row ">
+            <!-- Author display -->
+               <div class="center preview-author">{{ work.author }}</div>
             </div>
             <div class="view-row row">
-                <p class="left view-genre">{{ work.genre }}</p>
-                 
+            <!-- Title display -->
+               <div class="preview-title">{{ work.title }}</div>
             </div>
-
-            <div class="scroll">
-                <div class="view-row row ">
-                    <div class="center preview-author">{{ work.author }}</div>
-                </div>
-                <div class="view-row row">
-                    <div class="preview-title">{{ work.title }}</div>
-                </div>
-                
-                <div class="view-row row">
-                    {% for writing in format_poetry_writing(work.writing) %}
-                    <p class="format-view left">{{writing}}</p>
-                    {% endfor %}
-                </div>
+            <div class="view-row row">
+            <!-- Content of writing (function name not poetry related - used for all work) -->
+               {% for writing in format_poetry_writing(work.writing) %}
+               <p class="format-view left">{{writing}}</p>
+               {% endfor %}
             </div>
-           
-            
-        </div>
-    </div>
+         </div>
+      </div>
+   </div>
 </div>
-
 {% endblock %}

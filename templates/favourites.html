@@ -1,71 +1,70 @@
 {% extends 'base.html' %}
 {% block content %}
+<!-- banner image -->
 <div id="favourite-banner" class="row work-banner">
-
-    <div class="row">
-        <div class="col s12 m6 offset-m3">
-            <div class="card-panel">
-                <h1 class="center-align">
-                    {{ username }}'s Favourites
-                </h1>
-            </div>
-        </div>
-    </div>
+   <div class="row">
+      <div class="col s12 m6 offset-m3">
+         <div class="card-panel">
+            <h1 class="center-align">
+               {{ username }}'s Favourites
+            </h1>
+         </div>
+      </div>
+   </div>
 </div>
 <div class="container">
-<div class="row">
-    <div id="filter-div" class="col s12">
-        <form action="{{ url_for('filter_favourites') }}" method="POST" class="">
-                    <div class="col s12 m6 l4 offset-l3 input-field center-align">
-                        <select id="genre-filter" name="genre_name">
-                            <option value="" disabled selected>Filter By Genre</option>
-                            {% for gen in genres %}
-                            <option value="{{gen.genre_name}}">{{gen.genre_name}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                
-                <div class="col s12 m6 l3 center-align">
-                    <a href="{{ url_for('my_favourites') }}" class="reset-button">Reset</a>
-                    <button type="submit" class="filter-button">
-                        <i class="fas fa-list left"></i> Filter
-                    </button>
-                </div>
-        </form>
-    </div>
-</div>
-<div class="row">
-    <h3 class="form-heading center">Liked Works:</h3>
-</div>
-<div class="row center">
-    {% for work in works %}
-            <div class="work-div center">
-                <div class="page">
-                    <div class="row">
-                        <div class="read-more-btn right"><a class="btn-light" href="{{ url_for('view_work', work_id=work._id) }}">Read</a></div>
-                        <p class="left preview-genre">{{ work.genre }}</p>
-                        <a href="{{ url_for('unfavourite', work_id=work._id) }}"><i id="pro-unfav-button" class="material-icons center">sentiment_very_satisfied</i></a>
-                    </div>
-
-                    <div class="scroll">
-                        <div class="row">
-                            <div class="center preview-author">{{ work.author }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="preview-title">{{ work.title }}</div>
-                        </div>
-                        
-                        <div class="row">
-                            {% for writing in format_poetry_writing(work.writing) %}
-                            <p class="format-preview left">{{writing}}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    
-                </div>
+   <div class="row">
+    <!-- Filter by Genre form -->
+      <div id="filter-div" class="col s12">
+         <form action="{{ url_for('filter_favourites') }}" method="POST" class="">
+            <div class="col s12 m6 l4 offset-l3 input-field center-align">
+            <!-- Filter - genre options -->
+               <select id="genre-filter" name="genre_name">
+                  <option value="" disabled selected>Filter By Genre</option>
+                  {% for gen in genres %}
+                  <option value="{{gen.genre_name}}">{{gen.genre_name}}</option>
+                  {% endfor %}
+               </select>
             </div>
-    {% endfor %}
-</div>
-
+            <!-- Filter reset and submit buttons -->
+            <div class="col s12 m6 l3 center-align">
+               <a href="{{ url_for('my_favourites') }}" class="reset-button">Reset</a>
+               <button type="submit" class="filter-button">
+               <i class="fas fa-list left"></i> Filter
+               </button>
+            </div>
+         </form>
+      </div>
+   </div>
+   <div class="row">
+      <h3 class="form-heading center">Liked Works:</h3>
+   </div>
+   <!-- display "liked" works (only works of other users) -->
+   <div class="row center">
+      {% for work in works %}
+      <div class="work-div center">
+         <div class="page">
+            <div class="row">
+               <div class="read-more-btn right"><a class="btn-light" href="{{ url_for('view_work', work_id=work._id) }}">Read</a></div>
+               <p class="left preview-genre">{{ work.genre }}</p>
+               <a href="{{ url_for('unfavourite', work_id=work._id) }}"><i id="pro-unfav-button" class="material-icons center">sentiment_very_satisfied</i></a>
+            </div>
+            <div class="scroll">
+               <div class="row">
+                  <div class="center preview-author">{{ work.author }}</div>
+               </div>
+               <div class="row">
+                  <div class="preview-title">{{ work.title }}</div>
+               </div>
+               <div class="row">
+                  {% for writing in format_poetry_writing(work.writing) %}
+                  <p class="format-preview left">{{writing}}</p>
+                  {% endfor %}
+               </div>
+            </div>
+         </div>
+      </div>
+      {% endfor %}
+   </div>
 </div>
 {% endblock %}
