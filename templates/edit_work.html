@@ -26,7 +26,7 @@
                   {% endif %}
                   {% endfor %}
                </select>
-               <label class="edit-label" for="genre_name">Genre</label>
+               <label class="edit-label" for="genre">Genre</label>
             </div>
          </div>
          <!-- Title of writing -->
@@ -34,7 +34,7 @@
             <div class="input-field col s12">
                <i class="material-icons prefix create-icons">grade</i>
                <input id="title" name="title" type="text" class="validate" value="{{ work.title }}" required>
-               <label class="edit-label" for="icon_prefix">Title</label>
+               <label class="edit-label" for="title">Title</label>
             </div>
          </div>
          <!-- Content of writing -->
@@ -44,7 +44,7 @@
                <textarea name="writing" id="writing" class="materialize-textarea" value="{{ work.writing }}" required>
                {{- work.writing -}}
                </textarea>
-               <label class="edit-label" for="icon_prefix">Creation</label>
+               <label class="edit-label" for="writing">Creation</label>
             </div>
          </div>
          <!-- Submit button (to update) -->

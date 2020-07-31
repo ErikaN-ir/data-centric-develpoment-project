@@ -50,7 +50,7 @@ def get_filter_data(request, filter_criteria: dict):
 # formats the writing content for html rendering (tabs nad new lines)
 def format_poetry_writing(writing: str) -> str:
     print(writing)
-    format_writing = writing.replace('\t', '        ')
+    format_writing = writing.replace('\t', '       ')
     return format_writing.split('\n')
 
 
@@ -465,4 +465,4 @@ def my_favourites():
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),
-            debug=True)
+            debug=False)

@@ -50,9 +50,9 @@
          {% with messages = get_flashed_messages(with_categories=true) %}
          {% if messages %}
          {% for category, message in messages %}
-         <row>
+         <div class="row">
             <p class="{{category}}">{{ message }}</p>
-         </row>
+         </div>
          {% endfor %}
          {% endif %}
          {% endwith %}

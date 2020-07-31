@@ -93,9 +93,9 @@
                   <div class="preview-title">{{ work.title }}</div>
                </div>
                <!-- writing content display -->
-               <div class="row">
+               <div class="row text-row">
                   {% for writing in format_poetry_writing(work.writing) %}
-                  <p class="format-preview left">{{writing}}</p>
+                  <p class="format-preview">{{writing}}</p>
                   {% endfor %}
                </div>
             </div>
