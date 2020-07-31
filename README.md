@@ -12,7 +12,7 @@ Future versions would include the ability to comment on other's works (if the au
 ### Layout
 The image below details the basic plan for the original layout. While the design was developed as a mobile-first design, the target device in this wireframe was a larger screen.
 
-![](assets/images/wireframe.jpg)
+![](static/images/wireframe.jpg)
 
 The main types of pages were:
 1. Display Works pages (Home, Profile, Favourites)
