@@ -3,9 +3,9 @@
 
 ## Project Description
 The requirements of this project was to build a MongoDB-backed Flask web app that would allow users to create, locate, display, edit and delete records. 
-The vision for this web app was to design a social platform for writers, where writer's of all levels could connect, support and provide feedback to each other in a positive, non-competitive environment.
+The vision for this web app was to design a social platform for writers, where writers of all levels could connect, support and provide feedback to each other in a positive, non-competitive environment.
 Poets, screenwriters, playwrights, authors and casual writers of all types would be encouraged to share their thoughts and talents on the platform.
-The first version of this app was to provide login functionality, a place for the public to view all writer's work (home page - accessible to everyone), a profile page (currently private to the user to view their own work only) and a favourites page (where they can "collect" other writer's work).
+The first version of this app was to provide login functionality, a place for the public to view all writers' work (home page - accessible to everyone), a profile page (currently private to the user to view their own work only) and a favourites page (where they can "collect" other writers' work).
 Future versions would include the ability to comment on other's works (if the author opted for feedback) and the ability to view other people's profiles and writing history, to increase authors' visibility and collaboration.  
 
 ## UX
@@ -34,7 +34,7 @@ The concept of the fonts was to represent both the traditional hand-written form
 
 ### User Journey
 The following user stories were identified:
-1. "As a professional writer, I'd like a user friendly platform to connect different types of writers."
+1. "As a professional writer, I'd like a user friendly platform to connect with different types of writers."
 2. "As a new writer, I'd like feedback from more experienced writers without having to get professionally published yet."
 3. "As someone who would like to write, but doesn't know where to start, I'd like somewhere unintimidating to dabble and practise writing."
 
@@ -97,9 +97,6 @@ This data is used to display the "like"/"unlike" buttons on the View page and di
 9. Choice of text justification when submitting work.
 10. Ability for user to upload cover photo and profile photo for their Profile page.
 11. Stats on the number of views a work has - visible only to the author.
-
-## Bugs
-One significant bug after deployment was the formatting of longer strings of text. In the app.py file, the strings were meant to be split at
 
 ## Testing
 ### Validation
