@@ -19,8 +19,8 @@ The main types of pages were:
 2. View Individual Work (View page)
 3. Form pages (Create, Edit, Register, Login)
 
-- Display Works pages - display writings on a page image backgound in preview form
-- View Individual Works - display work (via id) in full format - including tab spacing, etc. Work can be "liked"/"unliked" here. Can access edit/del functions from this page.
+- Display Works pages - display writings on a page image background in preview form
+- View Individual Works - display work (via id) in full format - including tab spacing, etc. Work can be "liked"/"unliked" here. Can access edit/delete functions from this page.
 - Form pages - where information is submitted to database
 
 ### Colour Palette
